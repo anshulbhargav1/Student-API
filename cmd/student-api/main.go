@@ -11,16 +11,24 @@ import (
 
 	"github.com/anshulbhargav1/student-api/Internal/config"
 	"github.com/anshulbhargav1/student-api/Internal/http/handler/student"
+	"github.com/anshulbhargav1/student-api/Internal/sqlite"
 )
 
 func main() {
 	// Load config
 	cfg := config.MustLoad()
 
+	// databses setup
+	storage, err := sqlite.New(cfg)
+	if err != nil{
+		log.Fatal(err)
+	}
+	slog.Info("storage initialized", slog.String("env", cfg.Env))
+
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /api/students", student.New())
+	router.HandleFunc("POST /api/students", student.New(storage))
 
 	// setup server
 
@@ -52,7 +60,7 @@ func main() {
 	defer cancel()
 
 	// Attempt graceful shutdown
-	err := server.Shutdown(ctx)
+	err = server.Shutdown(ctx)
 	if err != nil {
 		log.Fatalf("Forced to shutdown: %s", err)
 	}
