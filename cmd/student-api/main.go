@@ -20,7 +20,7 @@ func main() {
 
 	// databses setup
 	storage, err := sqlite.New(cfg)
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	slog.Info("storage initialized", slog.String("env", cfg.Env))
@@ -29,6 +29,7 @@ func main() {
 	router := http.NewServeMux()
 
 	router.HandleFunc("POST /api/students", student.New(storage))
+	router.HandleFunc("GET /api/students/{id}", student.GetById(storage))
 
 	// setup server
 
